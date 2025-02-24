@@ -18,6 +18,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }) : super(AuthInitial()) {
     on<RegisterEvent>(_onRegister);
     on<LoginEvent>(_onLogin);
+    on<LogoutEvent>(_onLogout);
   }
 
   Future<void> _onRegister(RegisterEvent event, Emitter<AuthState> emit) async {
@@ -39,6 +40,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(AuthSuccess(message: "Login successfully"));
     } catch (e) {
       emit(AuthFailure(error: "Login failed"));
+    }
+  }
+  //logout
+  Future<void> _onLogout(LogoutEvent event, Emitter<AuthState> emit) async {
+    emit(AuthLoading());
+    try {
+    await _storage.delete(key: 'token');
+    emit(AuthSuccess(message: "Logout successfully"));
+    } catch (e) {
+      emit(AuthFailure(error: "Logout failed"));
+      
     }
   }
 }

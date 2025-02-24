@@ -1,11 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_chat/features/conversation/presentation/bloc/conversation_bloc.dart';
 
-import '../core/bloc/theme_cubit.dart';
-import '../core/theme.dart';
+import '../../../../core/bloc/theme_cubit.dart';
+import '../../../../core/theme.dart';
 
-class MessagePage extends StatelessWidget {
-  const MessagePage({super.key});
+class ConversationPage extends StatefulWidget {
+  const ConversationPage({super.key});
+
+  @override
+  State<ConversationPage> createState() => _ConversationPageState();
+}
+
+class _ConversationPageState extends State<ConversationPage> {
+  @override
+  void initState() {
+    // TODO: implement initState
+
+    super.initState();
+    BlocProvider.of<ConversationBloc>(context).add(FetchConversations());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,18 +90,48 @@ class MessagePage extends StatelessWidget {
                             ),
                           ], // Memberikan shadow lembut di light mode
                   ),
-                  child: ListView(
-                    children: [
-                      _buildMessageTile(
-                          'John Doe', 'Hello', '12:00 PM', context, theme),
-                      _buildMessageTile(
-                          'Jane Doe', 'Hi', '12:00 PM', context, theme),
-                      _buildMessageTile(
-                          'John Doe', 'Hello', '12:00 PM', context, theme),
-                      _buildMessageTile(
-                          'Jane Doe', 'Hi', '12:00 PM', context, theme),
-                    ],
-                  ),
+                  child: BlocBuilder<ConversationBloc, ConversationState>(
+                      builder: (context, state) {
+                    if (state is ConversationLoading) {
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else if (state is ConversationError) {
+                      return Center(
+                        child: Text('Error: ${state.message}'),
+                      );
+                    } else if (state is ConversationLoaded) {
+                      return ListView.builder(
+                        itemCount: state.conversations.length,
+                        itemBuilder: (context, index) {
+                          return _buildMessageTile(
+                            state.conversations[index].participantName,
+                            state.conversations[index].lastMessage,
+                            state.conversations[index].lastMessageTime,
+                            context,
+                            theme,
+                          );
+                        },
+                      );
+                    }
+                    return Center(
+                      child: Text('No conversations found.'),
+                    );
+                  }
+
+                      // return ListView(
+                      //   children: [
+                      //     _buildMessageTile(
+                      //         'John Doe', 'Hello', '12:00 PM', context, theme),
+                      //     _buildMessageTile(
+                      //         'Jane Doe', 'Hi', '12:00 PM', context, theme),
+                      //     _buildMessageTile(
+                      //         'John Doe', 'Hello', '12:00 PM', context, theme),
+                      //     _buildMessageTile(
+                      //         'Jane Doe', 'Hi', '12:00 PM', context, theme),
+                      //   ],
+                      // );
+                      ),
                 ),
               )
             ],
@@ -117,7 +161,7 @@ class MessagePage extends StatelessWidget {
     );
   }
 
-  Widget _buildMessageTile(String name, String message, String time,
+  Widget _buildMessageTile(String name, String message, DateTime time,
       BuildContext context, ThemeData theme) {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -134,7 +178,7 @@ class MessagePage extends StatelessWidget {
         style: theme.textTheme.bodySmall,
       ),
       trailing: Text(
-        time,
+        time.toString(),
         style: theme.textTheme.bodySmall,
       ),
     );

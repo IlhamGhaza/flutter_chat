@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'features/account/presentation/pages/profile_page.dart';
-import 'presentation/message_page.dart';
+import 'features/conversation/presentation/pages/message_page.dart';
 
 class NavBar extends StatefulWidget {
   const NavBar({super.key});
@@ -15,7 +15,7 @@ class _NavBarState extends State<NavBar> {
 
   // List halaman yang akan ditampilkan
   final List<Widget> _pages = [
-    const MessagePage(),
+    const ConversationPage(),
     const ProfilePage(),
   ];
 

@@ -20,3 +20,5 @@ class RegisterEvent extends AuthEvent {
       {required this.username, required this.email, required this.password});
 }
 
+class LogoutEvent extends AuthEvent {}
+

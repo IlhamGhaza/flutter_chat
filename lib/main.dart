@@ -1,11 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat/features/auth/presentation/pages/splash_page.dart';
+import 'package:flutter_chat/features/conversation/presentation/bloc/conversation_bloc.dart';
+import 'package:flutter_chat/features/conversation/presentation/pages/message_page.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'core/bloc/theme_cubit.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
-import 'features/auth/domain/repositories/auth_repository.dart';
 import 'features/auth/domain/usecases/login_usecase.dart';
 import 'features/auth/domain/usecases/register_usecase.dart';
 import 'package:flutter_chat/features/auth/presentation/bloc/auth_bloc.dart';
@@ -15,7 +16,9 @@ import 'features/auth/presentation/pages/login_page.dart';
 import 'features/auth/presentation/pages/register_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'presentation/message_page.dart';
+import 'features/conversation/data/datasources/conversation_remote_datasource.dart';
+import 'features/conversation/data/repositories/conversations_repository_impl.dart';
+import 'features/conversation/domain/usecases/fetch_conversation_use_case.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,12 +29,25 @@ void main() async {
   );
   final authRepository =
       AuthRepositoryImpl(authRemoteDatasource: AuthRemoteDatasource());
-  runApp(MyApp(authRepository: authRepository));
+  final conversationRepository = ConversationsRepositoryImpl(
+      remoteDataSource: ConversationRemoteDatasource());
+  final fetchConversationUseCase =
+      FetchConversationUseCase(conversationRepository);
+  runApp(MyApp(
+    authRepository: authRepository,
+    fetchConversationUseCase: fetchConversationUseCase,
+  ));
 }
 
 class MyApp extends StatelessWidget {
+  final FetchConversationUseCase fetchConversationUseCase;
+
   final AuthRepositoryImpl authRepository;
-  const MyApp({super.key, required this.authRepository});
+  const MyApp({
+    super.key,
+    required this.authRepository,
+    required this.fetchConversationUseCase,
+  });
 
   // This widget is the root of your application.
   @override
@@ -43,6 +59,10 @@ class MyApp extends StatelessWidget {
             registerUSeCase: RegisterUseCase(repository: authRepository),
             loginUSeCase: LoginUseCase(repository: authRepository),
           ),
+        ),
+        BlocProvider(
+          create: (context) => ConversationBloc(
+              fetchConversationUseCase: fetchConversationUseCase),
         ),
         BlocProvider(
           create: (context) => ThemeCubit(),
@@ -60,7 +80,7 @@ class MyApp extends StatelessWidget {
             routes: {
               '/login': (context) => const LoginPage(),
               '/register': (context) => const RegisterPage(),
-              '/home': (context) => const MessagePage(),
+              '/home': (context) => const ConversationPage(),
             },
           );
         },
