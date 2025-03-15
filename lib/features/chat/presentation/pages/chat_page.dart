@@ -1,11 +1,79 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_chat/features/chat/presentation/bloc/chat_bloc.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import '../core/bloc/theme_cubit.dart';
-import '../core/theme.dart';
+import '../../../../core/bloc/theme_cubit.dart';
+import '../../../../core/theme.dart';
 
-class ChatPage extends StatelessWidget {
-  const ChatPage({super.key});
+class ChatPage extends StatefulWidget {
+  final String conversationId;
+  final String mate;
+  const ChatPage({super.key, required this.conversationId, required this.mate});
+
+  @override
+  State<ChatPage> createState() => _ChatPageState();
+}
+
+class _ChatPageState extends State<ChatPage> {
+  final TextEditingController _messageController = TextEditingController();
+  final _storage = FlutterSecureStorage();
+  String userId = '';
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    BlocProvider.of<ChatBloc>(context).add(
+      LoadMessageEvent(conversationId: widget.conversationId),
+    );
+    fetchUserId();
+  }
+
+  fetchUserId() async {
+    String userid = await _storage.read(key: 'userId') ?? '';
+    setState(() {
+      userId = userid;
+    });
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _messageController.dispose();
+  }
+
+  void _sendMessage() {
+    final content = _messageController.text;
+    if (content.isNotEmpty) {
+      BlocProvider.of<ChatBloc>(context).add(
+        SendMessageEvent(
+            conversationId: widget.conversationId, content: content),
+      );
+      _messageController.clear();
+    }
+  }
+
+  //file picker
+  Future<void> _pickFile() async {
+    final pickedFile = await FilePicker.platform.pickFiles();
+    if (pickedFile != null) {
+      final file = File(pickedFile.files.single.path!);
+      final bytes = await file.readAsBytes();
+      final base64String = base64Encode(bytes);
+      BlocProvider.of<ChatBloc>(context).add(
+        SendMessageEvent(
+          conversationId: widget.conversationId,
+          content: base64String,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +94,7 @@ class ChatPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Dany',
+                      '${widget.mate}',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontSize: 20,
                           ),
@@ -83,12 +151,47 @@ class ChatPage extends StatelessWidget {
           body: Column(
             children: [
               Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.all(20),
-                  children: [
-                    _buildReceicedMessage(context, 'Hello'),
-                    _buildSentMessage(context, 'Hi'),
-                  ],
+                child: BlocBuilder<ChatBloc, ChatState>(
+                  builder: (context, state) {
+                    if (state is ChatLoadingState) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else if (state is ChatLoadedState) {
+                      final messages = state.messages;
+                      return ListView.builder(
+                        padding: const EdgeInsets.all(20.0),
+                        itemCount: messages.length,
+                        itemBuilder: (context, index) {
+                          final message = messages[index];
+                          if (message.senderId == userId) {
+                            return _buildSentMessage(
+                                context, message.content.toString());
+                          } else {
+                            return _buildReceicedMessage(
+                                context, message.content.toString());
+                          }
+                        },
+                      );
+                    } else if (state is ChatErrorState) {
+                      return Center(
+                        child: Text(state.message),
+                      );
+                    }
+                    return Center(
+                      child: Text(
+                        'No messages yet',
+                        style: TextStyle(fontSize: 20),
+                      ),
+                    );
+                    // return ListView(
+                    //   padding: const EdgeInsets.all(20),
+                    //   children: [
+                    //     _buildReceicedMessage(context, 'Hello'),
+                    //     _buildSentMessage(context, 'Hi'),
+                    //   ],
+                    // );
+                  },
                 ),
               ),
               _buildMessageInput(context),
@@ -152,10 +255,14 @@ class ChatPage extends StatelessWidget {
               Icons.attach_file,
               color: Theme.of(context).iconTheme.color,
             ),
-            onTap: () {},
+            onTap: () {
+              //file picker
+              _pickFile();
+            },
           ),
           Expanded(
             child: TextField(
+              controller: _messageController,
               decoration: InputDecoration(
                 hintText: 'Type a message',
                 hintStyle: TextStyle(color: Colors.grey),
@@ -169,7 +276,7 @@ class ChatPage extends StatelessWidget {
               Icons.send,
               color: Theme.of(context).iconTheme.color,
             ),
-            onTap: () {},
+            onTap: _sendMessage,
           ),
         ],
       ),

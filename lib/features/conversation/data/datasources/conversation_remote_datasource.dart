@@ -1,10 +1,9 @@
 import 'dart:convert';
-import 'dart:math';
 
-import 'package:flutter_chat/features/auth/data/datasources/auth_local_datasource.dart';
 import 'package:http/http.dart' as http;
 
 import '../../../../core/variabeles.dart';
+import '../../../auth/data/datasources/auth_local_datasource.dart';
 import '../models/conversation_model.dart';
 
 class ConversationRemoteDatasource {

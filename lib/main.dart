@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat/features/auth/presentation/pages/splash_page.dart';
+import 'package:flutter_chat/features/chat/data/repositories/message_repository_impl.dart';
+import 'package:flutter_chat/features/chat/domain/usecases/fetch_message_use_case.dart';
 import 'package:flutter_chat/features/conversation/presentation/bloc/conversation_bloc.dart';
 import 'package:flutter_chat/features/conversation/presentation/pages/message_page.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
@@ -16,6 +18,8 @@ import 'features/auth/presentation/pages/login_page.dart';
 import 'features/auth/presentation/pages/register_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'features/chat/data/datasources/message_remote_datasource.dart';
+import 'features/chat/presentation/bloc/chat_bloc.dart';
 import 'features/conversation/data/datasources/conversation_remote_datasource.dart';
 import 'features/conversation/data/repositories/conversations_repository_impl.dart';
 import 'features/conversation/domain/usecases/fetch_conversation_use_case.dart';
@@ -31,22 +35,26 @@ void main() async {
       AuthRepositoryImpl(authRemoteDatasource: AuthRemoteDatasource());
   final conversationRepository = ConversationsRepositoryImpl(
       remoteDataSource: ConversationRemoteDatasource());
+  final messageRepository =
+      MessageRepositoryImpl(messageRemoteDatasource: MessageRemoteDatasource());
   final fetchConversationUseCase =
       FetchConversationUseCase(conversationRepository);
   runApp(MyApp(
     authRepository: authRepository,
     fetchConversationUseCase: fetchConversationUseCase,
+    messageRepository: messageRepository,
   ));
 }
 
 class MyApp extends StatelessWidget {
   final FetchConversationUseCase fetchConversationUseCase;
-
   final AuthRepositoryImpl authRepository;
+  final MessageRepositoryImpl messageRepository;
   const MyApp({
     super.key,
     required this.authRepository,
     required this.fetchConversationUseCase,
+    required this.messageRepository,
   });
 
   // This widget is the root of your application.
@@ -64,6 +72,15 @@ class MyApp extends StatelessWidget {
           create: (context) => ConversationBloc(
               fetchConversationUseCase: fetchConversationUseCase),
         ),
+        BlocProvider(
+          create: (context) => ChatBloc(
+              fetchMessageUseCase:
+                  FetchMessageUseCase(messageRepository: messageRepository)),
+        ),
+        // BlocProvider(
+        //     create: (context) =>
+        //         ChatBloc(fetchMessageUseCase: FetchMessageUseCase( , messageRepository: null))),
+
         BlocProvider(
           create: (context) => ThemeCubit(),
         ),

@@ -4,6 +4,7 @@ import 'package:flutter_chat/features/conversation/presentation/bloc/conversatio
 
 import '../../../../core/bloc/theme_cubit.dart';
 import '../../../../core/theme.dart';
+import '../../../chat/presentation/pages/chat_page.dart';
 
 class ConversationPage extends StatefulWidget {
   const ConversationPage({super.key});
@@ -51,7 +52,7 @@ class _ConversationPageState extends State<ConversationPage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 15),
                 child: Text(
-                  'Recent Contacts',
+                  'Recent',
                   style: theme.textTheme.bodySmall,
                 ),
               ),
@@ -104,12 +105,27 @@ class _ConversationPageState extends State<ConversationPage> {
                       return ListView.builder(
                         itemCount: state.conversations.length,
                         itemBuilder: (context, index) {
-                          return _buildMessageTile(
-                            state.conversations[index].participantName,
-                            state.conversations[index].lastMessage,
-                            state.conversations[index].lastMessageTime,
-                            context,
-                            theme,
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ChatPage(
+                                    conversationId:
+                                        state.conversations[index].id,
+                                    mate: state.conversations[index]
+                                        .participantName,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: _buildMessageTile(
+                              state.conversations[index].participantName,
+                              state.conversations[index].lastMessage,
+                              state.conversations[index].lastMessageTime,
+                              context,
+                              theme,
+                            ),
                           );
                         },
                       );
