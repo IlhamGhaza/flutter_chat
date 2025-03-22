@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'features/account/presentation/pages/profile_page.dart';
+import 'features/contact/presentation/pages/contact_page.dart';
 import 'features/conversation/presentation/pages/message_page.dart';
 
 class NavBar extends StatefulWidget {
@@ -16,6 +17,7 @@ class _NavBarState extends State<NavBar> {
   // List halaman yang akan ditampilkan
   final List<Widget> _pages = [
     const ConversationPage(),
+    const ContactPage(),
     const ProfilePage(),
   ];
 
@@ -67,6 +69,19 @@ class _NavBarState extends State<NavBar> {
                 color: colorScheme.primary,
               ),
               label: 'Home',
+            ),
+            NavigationDestination(
+              icon: Icon(
+                Icons.contacts_outlined,
+                color: _selectedIndex == 1
+                    ? colorScheme.primary
+                    : colorScheme.onSurfaceVariant,
+              ),
+              selectedIcon: Icon(
+                Icons.contacts_rounded,
+                color: colorScheme.primary,
+              ),
+              label: 'Contact',
             ),
             NavigationDestination(
               icon: Icon(

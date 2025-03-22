@@ -152,6 +152,28 @@ class _ConversationPageState extends State<ConversationPage> {
               )
             ],
           ),
+          floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
+          floatingActionButton: FloatingActionButton(
+            backgroundColor: isDarkMode ? Colors.white : Colors.black,
+            foregroundColor: isDarkMode ? Colors.black : Colors.white,
+            tooltip: 'add message',
+            elevation: 5,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(50),
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ChatPage(
+                    conversationId: '',
+                    mate: '',
+                  ),
+                ),
+              );
+            },
+            child: const Icon(Icons.message),
+          ),
         );
       },
     );
