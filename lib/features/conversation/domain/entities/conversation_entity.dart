@@ -1,14 +1,16 @@
 class ConversationEntity {
   final String id;
+  final String participantId;
   final String participantName;
-  String participant_photo;
+  final dynamic participantPhoto;
   final String lastMessage;
   final DateTime lastMessageTime;
 
   ConversationEntity(
       {required this.id,
+      required this.participantId,
       required this.participantName,
-      this.participant_photo = '',
+      required this.participantPhoto,
       required this.lastMessage,
       required this.lastMessageTime});
 }

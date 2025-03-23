@@ -26,6 +26,7 @@ import 'features/contact/domain/usecases/fetch_contact_usecase.dart';
 import 'features/contact/presentation/bloc/contact_bloc.dart';
 import 'features/conversation/data/datasources/conversation_remote_datasource.dart';
 import 'features/conversation/data/repositories/conversations_repository_impl.dart';
+import 'features/conversation/domain/usecases/check_or_create_conversation_use_case.dart';
 import 'features/conversation/domain/usecases/fetch_conversation_use_case.dart';
 import 'features/conversation/presentation/bloc/conversation_bloc.dart';
 import 'features/conversation/presentation/pages/message_page.dart';
@@ -45,14 +46,15 @@ void main() async {
       MessageRepositoryImpl(messageRemoteDatasource: MessageRemoteDatasource());
   final fetchConversationUseCase =
       FetchConversationUseCase(conversationRepository);
-  final contactRepository = ContactRepositoryImpl(
-      contactRemoteDatasource: ContactRemoteDatasource());
-  
+  final contactRepository =
+      ContactRepositoryImpl(contactRemoteDatasource: ContactRemoteDatasource());
+
   runApp(MyApp(
     authRepository: authRepository,
     fetchConversationUseCase: fetchConversationUseCase,
     messageRepository: messageRepository,
     contactRepository: contactRepository,
+    conversationRepository: conversationRepository,
   ));
 }
 
@@ -61,12 +63,14 @@ class MyApp extends StatelessWidget {
   final AuthRepositoryImpl authRepository;
   final MessageRepositoryImpl messageRepository;
   final ContactRepositoryImpl contactRepository;
+  final ConversationsRepositoryImpl conversationRepository;
   const MyApp({
     super.key,
     required this.authRepository,
     required this.fetchConversationUseCase,
     required this.messageRepository,
     required this.contactRepository,
+    required this.conversationRepository,
   });
 
   // This widget is the root of your application.
@@ -92,11 +96,16 @@ class MyApp extends StatelessWidget {
         //contact bloc
         BlocProvider(
           create: (context) => ContactBloc(
-            FetchContactUseCase(contactRepository: contactRepository),
-            AddContactUseCase(contactRepository: contactRepository),
-            DeleteContactUseCase(contactRepository: contactRepository),
+            fetchContactUseCase: FetchContactUseCase(contactRepository: contactRepository),
+            addContactUseCase: AddContactUseCase(contactRepository: contactRepository),
+            deleteContactUseCase: DeleteContactUseCase(contactRepository: contactRepository),
+              checkOrCreateConversationUseCase:
+                  CheckOrCreateConversationUseCase(
+                repository: conversationRepository,
+              )
           ),
         ),
+
         BlocProvider(
           create: (context) => ThemeCubit(),
         ),

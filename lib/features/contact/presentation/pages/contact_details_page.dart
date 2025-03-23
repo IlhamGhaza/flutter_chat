@@ -128,8 +128,11 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
             ElevatedButton(
               onPressed: () {
                 // Delete contact
-                BlocProvider.of<ContactBloc>(context)
-                    .add(DeleteContactEvent(id: widget.contact.id.toString()));
+                BlocProvider.of<ContactBloc>(context).add(
+                  DeleteContactEvent(
+                    id: widget.contact.id.toString(),
+                  ),
+                );
                 Navigator.pop(context); // Close dialog
                 Navigator.pop(context); // Return to contacts list
               },

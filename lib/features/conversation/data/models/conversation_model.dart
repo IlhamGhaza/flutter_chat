@@ -2,23 +2,21 @@ import '../../domain/entities/conversation_entity.dart';
 
 class ConversationModel extends ConversationEntity {
   ConversationModel(
-      {required id,
-      required participantName,
-      super.participant_photo = '',
-      required lastMessage,
-      required lastMessageTime})
-      : super(
-            id: id,
-            participantName: participantName,
-            lastMessage: lastMessage,
-            lastMessageTime: lastMessageTime);
+      {required super.id,
+      required super.participantId,
+      required super.participantName,
+      required super.participantPhoto,
+      required super.lastMessage,
+      required super.lastMessageTime});
+      
   factory ConversationModel.fromJson(Map<String, dynamic> json) {
     return ConversationModel(
-      id: json['conversation_id'],
-      participantName: json['participant_name'],
-      participant_photo: json['participant_photo'],
-      lastMessage: json['last_message'],
-      lastMessageTime: json['last_message_time'],
+      id: json['id'],
+      participantId: json['participantId'],
+      participantName: json['participantName'],
+      participantPhoto: json['participantPhoto'],
+      lastMessage: json['lastMessage'],
+      lastMessageTime: DateTime.parse(json['lastMessageTime']),
     );
   }
 }

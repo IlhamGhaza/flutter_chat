@@ -12,4 +12,11 @@ class ConversationsRepositoryImpl implements ConversationRepository {
   Future<List<ConversationEntity>> fetchConversations() async{
     return await remoteDataSource.fetchConversations();
   }
+  
+  @override
+  Future<String> checkOrCreateConversation( String id) async {
+    // TODO: implement checkOrCreateConversation
+    return await remoteDataSource.checkOrCreateConversation(id);
+  }
+
 }

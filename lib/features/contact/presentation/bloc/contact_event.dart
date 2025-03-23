@@ -12,5 +12,19 @@ class AddContactEvent extends ContactEvent {
 
 class DeleteContactEvent extends ContactEvent {
   final String id;
+
   DeleteContactEvent({required this.id});
+}
+
+class CheckOrCreateConversationEvent extends ContactEvent {
+  final ContactEntity contactId;
+  final String contactName;
+  CheckOrCreateConversationEvent( this.contactId, this.contactName);
+}
+
+class ConversationCreated extends ContactState {
+  final String conversationId;
+  final String contactName;
+
+  ConversationCreated(this.conversationId, this.contactName);
 }

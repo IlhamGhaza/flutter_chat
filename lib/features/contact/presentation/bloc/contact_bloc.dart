@@ -1,7 +1,9 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:bloc/bloc.dart';
+import 'package:flutter_chat/features/chat/presentation/bloc/chat_bloc.dart';
 import 'package:flutter_chat/features/contact/domain/usecases/fetch_contact_usecase.dart';
 
+import '../../../conversation/domain/usecases/check_or_create_conversation_use_case.dart';
 import '../../domain/entities/contact_entity.dart';
 import '../../domain/usecases/add_contact_usecase.dart';
 import '../../domain/usecases/delete_contact_usecase.dart';
@@ -13,14 +15,18 @@ class ContactBloc extends Bloc<ContactEvent, ContactState> {
   final FetchContactUseCase fetchContactUseCase;
   final AddContactUseCase addContactUseCase;
   final DeleteContactUseCase deleteContactUseCase;
+  final CheckOrCreateConversationUseCase checkOrCreateConversationUseCase;
+
   ContactBloc(
-    this.fetchContactUseCase,
-    this.addContactUseCase,
-    this.deleteContactUseCase,
-  ) : super(ContactInitial()) {
+      {required this.fetchContactUseCase,
+      required this.addContactUseCase,
+      required this.deleteContactUseCase,
+      required this.checkOrCreateConversationUseCase})
+      : super(ContactInitial()) {
     on<FetchContactEvent>(_onFetchContacts);
     on<AddContactEvent>(_onAddContact);
     on<DeleteContactEvent>(_onDeleteContact);
+    on<CheckOrCreateConversationEvent>(_onCheckOrCreateConversation);
     // on<ContactEvent>((event, emit) {
     //   // TODO: implement event handler
     // });
@@ -54,6 +60,18 @@ class ContactBloc extends Bloc<ContactEvent, ContactState> {
     try {
       await deleteContactUseCase.call(event.id);
       emit(ContactDeleted());
+    } catch (e) {
+      emit(ContactError(message: e.toString()));
+    }
+  }
+
+  void _onCheckOrCreateConversation(
+      CheckOrCreateConversationEvent event, Emitter<ContactState> emit) async {
+    emit(ContactLoading());
+    try {
+      final conversationId = await checkOrCreateConversationUseCase
+          .call(event.contactId.id.toString());
+      emit(ConversationCreated(conversationId, event.contactId.username));
     } catch (e) {
       emit(ContactError(message: e.toString()));
     }

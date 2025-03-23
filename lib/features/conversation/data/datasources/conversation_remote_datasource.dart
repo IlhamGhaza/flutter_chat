@@ -25,4 +25,23 @@ class ConversationRemoteDatasource {
       throw Exception('Failed to load conversations');
     }
   }
+
+  Future<String> checkOrCreateConversation(String id) async {
+    await _authLocalDatasource.getToken();
+    final response = await http.post(
+      Uri.parse('${Variables.baseUrl}/conversations/c/'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${await _authLocalDatasource.getToken()}',
+      },
+      body: jsonEncode({
+        'participantId': id,
+      }),
+    );
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      throw Exception('Failed to check or create conversation');
+    }
+  }
 }
