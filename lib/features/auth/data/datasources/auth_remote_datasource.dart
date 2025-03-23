@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import '../../../../core/variabeles.dart';
 import '../models/user_model.dart';
@@ -16,11 +17,11 @@ class AuthRemoteDatasource {
         'password': password,
       }),
     );
-    print(response.body);
+    log('login response: ${response.body}');
     if (response.statusCode == 200) {
-      return UserModel.fromJson(jsonDecode(response.body)['user']);
+      return UserModel.fromJson(jsonDecode(response.body)['data']['user']);
     } else {
-      print(response.body);
+      log('login error: ${response.body}');
       throw Exception('Failed to login');
     }
   }
@@ -38,7 +39,7 @@ class AuthRemoteDatasource {
         'password': password,
       }),
     );
-    print(response.body);
+    log('register response: ${response.body}');
     if (response.statusCode == 200) {
       return UserModel.fromJson(jsonDecode(response.body)['user']);
     } else {

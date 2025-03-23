@@ -19,7 +19,7 @@ class ContactRemoteDatasource {
         'Authorization': 'Bearer ${await _authLocalDatasource.getToken()}',
       },
     );
-    log('contact response: $response.body');
+    log('get all contact response: ${response.body}');
     if (response.statusCode == 200) {
       List data = jsonDecode(response.body);
       return data.map((json) => ContactModel.fromJson(json)).toList();
@@ -38,7 +38,7 @@ class ContactRemoteDatasource {
         'Authorization': 'Bearer ${await _authLocalDatasource.getToken()}',
       },
     );
-    log('contact response: $response.body');
+    log('get by id contact response: ${response.body}');
     if (response.statusCode == 200) {
       return ContactModel.fromJson(jsonDecode(response.body));
     } else {
@@ -60,7 +60,7 @@ class ContactRemoteDatasource {
         'email': email,
       }),
     );
-    log('add contact response: $response.body');
+    log('add contact response: ${response.body}');
     if (response.statusCode == 201) {
       return jsonDecode(response.body)['message'];
     } else {
@@ -78,7 +78,7 @@ class ContactRemoteDatasource {
         'Authorization': 'Bearer ${await _authLocalDatasource.getToken()}',
       },
     );
-    log('delete contact response: $response.body');
+    log('delete contact response: ${response.body}');
     if (response.statusCode == 200) {
       return jsonDecode(response.body)['message'];
     } else {

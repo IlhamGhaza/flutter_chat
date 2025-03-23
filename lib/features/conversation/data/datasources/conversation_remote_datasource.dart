@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:http/http.dart' as http;
 
@@ -17,7 +18,7 @@ class ConversationRemoteDatasource {
         'Authorization': 'Bearer ${await _authLocalDatasource.getToken()}',
       },
     );
-    print(response);
+    log('get all conversations response: ${response.body}');
     if (response.statusCode == 200) {
       final List<dynamic> jsonData = jsonDecode(response.body);
       return jsonData.map((json) => ConversationModel.fromJson(json)).toList();
@@ -38,6 +39,7 @@ class ConversationRemoteDatasource {
         'participantId': id,
       }),
     );
+    log('check or create conversation response: ${response.body}');
     if (response.statusCode == 200) {
       return response.body;
     } else {

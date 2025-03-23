@@ -18,7 +18,7 @@ class MessageRemoteDatasource {
         'Authorization': 'Bearer ${await _authLocalDatasource.getToken()}',
       },
     );
-    log('message response: $response.body');
+    log('get all message response: ${response.body}');
     if (response.statusCode == 200) {
       List data = jsonDecode(response.body);
       return data.map((json) => MessageModel.fromJson(json)).toList();
