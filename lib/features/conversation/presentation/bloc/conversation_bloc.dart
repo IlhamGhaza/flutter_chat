@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:bloc/bloc.dart';
 import '../../domain/entities/conversation_entity.dart';
 import '../../domain/usecases/fetch_conversation_use_case.dart';
@@ -21,6 +23,8 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
       emit(ConversationLoaded(conversations: conversations));
     } catch (e) {
       emit(ConversationError(message: 'Failed to load conversations'));
+      log('Failed to load conversations: ${e.toString()}\n');
+      log('Stack trace: ${StackTrace.current}\n');
     }
   }
 }

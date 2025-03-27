@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -8,6 +9,7 @@ import 'package:flutter_chat/features/chat/presentation/bloc/chat_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../../../core/bloc/theme_cubit.dart';
+import '../../../../core/constant.dart';
 import '../../../../core/theme.dart';
 
 class ChatPage extends StatefulWidget {
@@ -26,26 +28,25 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    fetchUserId();
     BlocProvider.of<ChatBloc>(context).add(
       LoadMessageEvent(conversationId: widget.conversationId),
     );
-    fetchUserId();
   }
 
-  fetchUserId() async {
-    String userid = await _storage.read(key: 'userId') ?? '';
+  Future<void> fetchUserId() async {
+    String fetchedUserId = await _storage.read(key: StorageKeys.userId) ?? '';
     setState(() {
-      userId = userid;
+      userId = fetchedUserId;
     });
+    log('Fetched userId: $userId');
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
-    super.dispose();
     _messageController.dispose();
+    super.dispose();
   }
 
   void _sendMessage() {
@@ -59,7 +60,6 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  //file picker
   Future<void> _pickFile() async {
     final pickedFile = await FilePicker.platform.pickFiles();
     if (pickedFile != null) {
@@ -84,27 +84,35 @@ class _ChatPageState extends State<ChatPage> {
         return Scaffold(
           appBar: AppBar(
             title: Row(
-              spacing: 10,
               children: [
                 CircleAvatar(
                   radius: 20,
-                  backgroundImage: NetworkImage('https://picsum.photos/200'),
+                  backgroundColor: theme.primaryColor,
+                  backgroundImage:
+                      widget.mate.length > 1 ? NetworkImage(widget.mate) : null,
+                  child: widget.mate.length == 1
+                      ? Text(
+                          widget.mate.toUpperCase(),
+                          style: TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
+                        )
+                      : null,
                 ),
+                SizedBox(width: 10),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${widget.mate}',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontSize: 20,
-                          ),
+                      widget.mate,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontSize: 20,
+                      ),
                     ),
                     Text(
                       'Online',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(color: Colors.green),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.green,
+                      ),
                     ),
                   ],
                 ),
@@ -113,36 +121,23 @@ class _ChatPageState extends State<ChatPage> {
             backgroundColor: Colors.transparent,
             elevation: 0,
             actions: [
-              //search
               IconButton(
-                icon: Icon(
-                  Icons.search,
-                  color: Theme.of(context).iconTheme.color,
-                ),
+                icon: Icon(Icons.search, color: theme.iconTheme.color),
                 onPressed: () {},
                 tooltip: 'Search',
               ),
               IconButton(
-                icon: Icon(
-                  Icons.video_call,
-                  color: Theme.of(context).iconTheme.color,
-                ),
+                icon: Icon(Icons.video_call, color: theme.iconTheme.color),
                 onPressed: () {},
                 tooltip: 'Video Call',
               ),
               IconButton(
-                icon: Icon(
-                  Icons.call,
-                  color: Theme.of(context).iconTheme.color,
-                ),
+                icon: Icon(Icons.call, color: theme.iconTheme.color),
                 onPressed: () {},
                 tooltip: 'Call',
               ),
               IconButton(
-                icon: Icon(
-                  Icons.more_vert,
-                  color: Theme.of(context).iconTheme.color,
-                ),
+                icon: Icon(Icons.more_vert, color: theme.iconTheme.color),
                 onPressed: () {},
                 tooltip: 'More',
               ),
@@ -153,48 +148,34 @@ class _ChatPageState extends State<ChatPage> {
               Expanded(
                 child: BlocBuilder<ChatBloc, ChatState>(
                   builder: (context, state) {
-                    if (state is ChatLoadingState) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
+                    if (state is ChatLoadedState) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: ListView.builder(
+                          itemCount: state.messages.length,
+                          itemBuilder: (context, index) {
+                            final message = state.messages[index];
+                            bool isSentByMe = message.senderId.toString() == userId;
+                            log('Message senderId: ${message.senderId}, userId: $userId, isSentByMe: $isSentByMe'); // Debugging
+                            if (isSentByMe) {
+                              return _buildSentMessage(context, message.content.toString(), theme);
+                            } else {
+                              return _buildReceicedMessage(context, message.content.toString(), theme);
+                            }
+                          },
+                        ),
                       );
-                    } else if (state is ChatLoadedState) {
-                      final messages = state.messages;
-                      return ListView.builder(
-                        padding: const EdgeInsets.all(20.0),
-                        itemCount: messages.length,
-                        itemBuilder: (context, index) {
-                          final message = messages[index];
-                          if (message.senderId == userId) {
-                            return _buildSentMessage(
-                                context, message.content.toString());
-                          } else {
-                            return _buildReceicedMessage(
-                                context, message.content.toString());
-                          }
-                        },
-                      );
+                    } else if (state is ChatLoadingState) {
+                      return Center(child: CircularProgressIndicator());
                     } else if (state is ChatErrorState) {
-                      return Center(
-                        child: Text(state.message),
-                      );
+                      return Center(child: Text(state.message));
+                    } else {
+                      return Container();
                     }
-                    return Center(
-                      child: Text(
-                        'No messages yet',
-                        style: TextStyle(fontSize: 20),
-                      ),
-                    );
-                    // return ListView(
-                    //   padding: const EdgeInsets.all(20),
-                    //   children: [
-                    //     _buildReceicedMessage(context, 'Hello'),
-                    //     _buildSentMessage(context, 'Hi'),
-                    //   ],
-                    // );
                   },
                 ),
               ),
-              _buildMessageInput(context),
+              _buildMessageInput(context, theme),
             ],
           ),
         );
@@ -202,79 +183,84 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  Widget _buildReceicedMessage(BuildContext context, String message) {
+  Widget _buildReceicedMessage(BuildContext context, String message, ThemeData theme) {
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 5, right: 30, top: 5),
+        margin: const EdgeInsets.only(bottom: 5, right: 30, top: 5, left: 10),
         padding: const EdgeInsets.all(15),
         decoration: BoxDecoration(
-          color: DefaultColors.receiverMessage,
+          color: theme.brightness == Brightness.dark
+              ? DefaultColors.darkReceiverMessage
+              : DefaultColors.lightReceiverMessage,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Text(
           message,
-          style: Theme.of(context).textTheme.bodyMedium,
+          style: theme.textTheme.bodyMedium,
         ),
       ),
     );
   }
 
-  Widget _buildSentMessage(BuildContext context, String message) {
+  Widget _buildSentMessage(BuildContext context, String message, ThemeData theme) {
     return Align(
       alignment: Alignment.centerRight,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 5, left: 30, top: 5),
+        margin: const EdgeInsets.only(bottom: 5, left: 30, top: 5, right: 10),
         padding: const EdgeInsets.all(15),
         decoration: BoxDecoration(
-          color: DefaultColors.senderMessage,
+          color: theme.brightness == Brightness.dark
+              ? DefaultColors.darkSenderMessage
+              : DefaultColors.lightSenderMessage,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Text(
           message,
-          style: Theme.of(context).textTheme.bodyMedium,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: Colors.white,
+          ),
         ),
       ),
     );
   }
 
-  //message input
-  Widget _buildMessageInput(BuildContext context) {
+  Widget _buildMessageInput(BuildContext context, ThemeData theme) {
     return Container(
       margin: EdgeInsets.all(25),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: DefaultColors.senderMessage,
+        color: theme.brightness == Brightness.dark
+            ? DefaultColors.darkInputBackground
+            : DefaultColors.lightInputBackground,
         borderRadius: BorderRadius.circular(25),
       ),
       child: Row(
-        spacing: 10,
         children: [
           GestureDetector(
             child: Icon(
               Icons.attach_file,
-              color: Theme.of(context).iconTheme.color,
+              color: theme.iconTheme.color,
             ),
-            onTap: () {
-              //file picker
-              _pickFile();
-            },
+                        onTap: _pickFile,
           ),
+          SizedBox(width: 10),
           Expanded(
             child: TextField(
               controller: _messageController,
               decoration: InputDecoration(
                 hintText: 'Type a message',
-                hintStyle: TextStyle(color: Colors.grey),
+                hintStyle: TextStyle(color: theme.hintColor),
                 border: InputBorder.none,
               ),
-              style: TextStyle(color: Colors.white),
+              style: theme.textTheme.bodyMedium,
             ),
           ),
+          SizedBox(width: 10),
           GestureDetector(
             child: Icon(
               Icons.send,
-              color: Theme.of(context).iconTheme.color,
+              color: theme.iconTheme.color,
             ),
             onTap: _sendMessage,
           ),

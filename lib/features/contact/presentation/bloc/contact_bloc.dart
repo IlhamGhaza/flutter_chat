@@ -1,4 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:developer';
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter_chat/features/chat/presentation/bloc/chat_bloc.dart';
 import 'package:flutter_chat/features/contact/domain/usecases/fetch_contact_usecase.dart';
@@ -38,7 +40,8 @@ class ContactBloc extends Bloc<ContactEvent, ContactState> {
       final contacts = await fetchContactUseCase.call();
       emit(ContactLoaded(contacts));
     } catch (e) {
-      emit(ContactError(message: e.toString()));
+      emit(ContactError(message: 'Failed to load contacts'));
+      log('failed load contacts: ${e.toString()}\n');
     }
   }
 
@@ -71,7 +74,12 @@ class ContactBloc extends Bloc<ContactEvent, ContactState> {
     try {
       final conversationId = await checkOrCreateConversationUseCase
           .call(event.contactId.id.toString());
-      emit(ConversationCreated(conversationId, event.contactId.username));
+      if (conversationId != null) {
+        emit(ConversationCreated(
+            conversationId.toString(), event.contactId.username));
+      } else {
+        emit(ContactError(message: 'Failed to create conversation'));
+      }
     } catch (e) {
       emit(ContactError(message: e.toString()));
     }

@@ -10,10 +10,10 @@ class ContactModel extends ContactEntity {
 
   factory ContactModel.fromJson(Map<String, dynamic> json) {
     return ContactModel(
-      id: json['id'],
+      id: json['contact_id'] as int,
       username: json['username'],
       email: json['email'],
-      photoProfile: json['photoProfile'],
+      photoProfile: json['photo_profile'],
     );
   }
 }

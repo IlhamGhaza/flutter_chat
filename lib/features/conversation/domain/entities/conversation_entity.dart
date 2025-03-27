@@ -1,6 +1,6 @@
 class ConversationEntity {
-  final String id;
-  final String participantId;
+  final int id;
+  final int participantId;
   final String participantName;
   final dynamic participantPhoto;
   final String lastMessage;

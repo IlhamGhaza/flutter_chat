@@ -11,17 +11,18 @@ class ContactRemoteDatasource {
   final _authLocalDatasource = AuthLocalDatasource();
 
   Future<List<ContactModel>> fetchContacts() async {
-    await _authLocalDatasource.getToken();
+    final token = await _authLocalDatasource.getToken();
     final response = await http.get(
       Uri.parse('${Variables.baseUrl}/contacts'),
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ${await _authLocalDatasource.getToken()}',
+        'Authorization': 'Bearer $token',
       },
     );
     log('get all contact response: ${response.body}');
     if (response.statusCode == 200) {
-      List data = jsonDecode(response.body);
+      final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      final List<dynamic> data = jsonResponse['data'];
       return data.map((json) => ContactModel.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load contacts');
@@ -30,17 +31,20 @@ class ContactRemoteDatasource {
 
   //get by id
   Future<ContactModel> getContactById(String id) async {
-    await _authLocalDatasource.getToken();
+    final token = await _authLocalDatasource.getToken();
     final response = await http.get(
       Uri.parse('${Variables.baseUrl}/contacts/$id'),
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ${await _authLocalDatasource.getToken()}',
+        'Authorization': 'Bearer $token',
       },
     );
     log('get by id contact response: ${response.body}');
     if (response.statusCode == 200) {
-      return ContactModel.fromJson(jsonDecode(response.body));
+      final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      final List<dynamic> data = jsonResponse['data'];
+      return ContactModel.fromJson(data[0]);
+      // return ContactModel.fromJson(jsonDecode(response.body));
     } else {
       throw Exception('Failed to load contact');
     }
@@ -48,12 +52,12 @@ class ContactRemoteDatasource {
 
   //add contact by username or email
   Future<void> addContact({String? username, String? email}) async {
-    await _authLocalDatasource.getToken();
+    final token = await _authLocalDatasource.getToken();
     final response = await http.post(
       Uri.parse('${Variables.baseUrl}/contacts'),
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ${await _authLocalDatasource.getToken()}',
+        'Authorization': 'Bearer $token',
       },
       body: jsonEncode({
         'username': username,
@@ -70,12 +74,12 @@ class ContactRemoteDatasource {
 
   //delete contact by id
   Future<void> deleteContact(String id) async {
-    await _authLocalDatasource.getToken();
+   final token =  await _authLocalDatasource.getToken();
     final response = await http.delete(
       Uri.parse('${Variables.baseUrl}/contacts/$id'),
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ${await _authLocalDatasource.getToken()}',
+        'Authorization': 'Bearer $token',
       },
     );
     log('delete contact response: ${response.body}');

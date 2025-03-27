@@ -29,7 +29,7 @@ import 'features/conversation/data/repositories/conversations_repository_impl.da
 import 'features/conversation/domain/usecases/check_or_create_conversation_use_case.dart';
 import 'features/conversation/domain/usecases/fetch_conversation_use_case.dart';
 import 'features/conversation/presentation/bloc/conversation_bloc.dart';
-import 'features/conversation/presentation/pages/message_page.dart';
+import 'features/conversation/presentation/pages/conversation_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

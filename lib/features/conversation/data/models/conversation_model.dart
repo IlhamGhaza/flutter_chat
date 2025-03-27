@@ -1,5 +1,6 @@
 import '../../domain/entities/conversation_entity.dart';
 
+
 class ConversationModel extends ConversationEntity {
   ConversationModel(
       {required super.id,
@@ -11,12 +12,12 @@ class ConversationModel extends ConversationEntity {
       
   factory ConversationModel.fromJson(Map<String, dynamic> json) {
     return ConversationModel(
-      id: json['id'],
-      participantId: json['participantId'],
-      participantName: json['participantName'],
-      participantPhoto: json['participantPhoto'],
-      lastMessage: json['lastMessage'],
-      lastMessageTime: DateTime.parse(json['lastMessageTime']),
+      id: json['conversationid'],
+      participantId: json['participant_id'],
+      participantName: json['participant_name'],
+      participantPhoto: json['participant_photo'],
+      lastMessage: json['last_message'],
+      lastMessageTime: DateTime.parse(json['last_message_time']),
     );
   }
 }

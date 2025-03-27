@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'features/account/presentation/pages/profile_page.dart';
 import 'features/contact/presentation/pages/contact_page.dart';
-import 'features/conversation/presentation/pages/message_page.dart';
+import 'features/conversation/presentation/pages/conversation_page.dart';
 
 class NavBar extends StatefulWidget {
   const NavBar({super.key});
@@ -100,32 +100,32 @@ class _NavBarState extends State<NavBar> {
         ),
       ),
       // FAB dengan animasi posisi
-      floatingActionButton: AnimatedSlide(
-        duration: const Duration(milliseconds: 300),
-        offset: _selectedIndex == 1 ? const Offset(0, 2) : Offset.zero,
-        child: AnimatedOpacity(
-          duration: const Duration(milliseconds: 300),
-          opacity: _selectedIndex == 1 ? 0 : 1,
-          child: FloatingActionButton(
-            onPressed: () {
-              // Add your FAB action here
-              // Navigator.pushNamed(context, '/add_contact');
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Feature not implemented yet'),
-                ),
-              );
-            },
-            elevation: 4,
-            backgroundColor: colorScheme.primaryContainer,
-            child: Icon(
-              //icon add message
-              Icons.message,
-              color: colorScheme.onPrimaryContainer,
-            ),
-          ),
-        ),
-      ),
+      // floatingActionButton: AnimatedSlide(
+      //   duration: const Duration(milliseconds: 300),
+      //   offset: _selectedIndex == 1 ? const Offset(0, 2) : Offset.zero,
+      //   child: AnimatedOpacity(
+      //     duration: const Duration(milliseconds: 300),
+      //     opacity: _selectedIndex == 1 ? 0 : 1,
+      //     child: FloatingActionButton(
+      //       onPressed: () {
+      //         // Add your FAB action here
+      //         // Navigator.pushNamed(context, '/add_contact');
+      //         ScaffoldMessenger.of(context).showSnackBar(
+      //           const SnackBar(
+      //             content: Text('Feature not implemented yet'),
+      //           ),
+      //         );
+      //       },
+      //       elevation: 4,
+      //       backgroundColor: colorScheme.primaryContainer,
+      //       child: Icon(
+      //         //icon add message
+      //         Icons.message,
+      //         color: colorScheme.onPrimaryContainer,
+      //       ),
+      //     ),
+      //   ),
+      // ),
     );
   }
 }

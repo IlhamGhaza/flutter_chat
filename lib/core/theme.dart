@@ -28,6 +28,13 @@ class DefaultColors {
   static const darkScaffoldBackground = Color(0xff1b202d);
   static const lightScaffoldBackground = Color(0xffffffff);
   static const lightTextColor = Color(0xff000000);
+
+   static const Color lightReceiverMessage = Color(0xFFE8E8E8);
+  static const Color darkReceiverMessage = Color(0xFF303030);
+  static const Color lightSenderMessage = Color(0xFF007AFF);
+  static const Color darkSenderMessage = Color(0xFF0A84FF);
+  static const Color lightInputBackground = Color(0xFFF2F2F7);
+  static const Color darkInputBackground = Color(0xFF1C1C1E);
 }
 
 class AppTheme {

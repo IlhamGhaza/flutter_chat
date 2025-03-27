@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat/features/chat/presentation/pages/chat_page.dart';
 
+import '../../../../core/bloc/theme_cubit.dart';
+import '../../../../core/theme.dart';
 import '../bloc/contact_bloc.dart';
 import 'contact_details_page.dart';
 
@@ -32,96 +34,105 @@ class _ContactPageState extends State<ContactPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Theme.of(context).primaryColor,
-        title: const Text(
-          'Contacts',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search, color: Colors.white),
-            onPressed: () => _showSearchDialog(context),
-          ),
-        ],
-      ),
-      body: BlocListener<ContactBloc, ContactState>(
-        listener: (context, state) {
-          if (state is ConversationCreated) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ChatPage(
-                  conversationId: state.conversationId,
-                  mate: state.contactName,
-                ),
+    return BlocBuilder<ThemeCubit, ThemeMode>(
+      builder: (context, themeMode) {
+        final isDarkMode = themeMode == ThemeMode.dark;
+        final theme = isDarkMode ? AppTheme.darkTheme : AppTheme.lightTheme;
+
+        return Scaffold(
+          backgroundColor: isDarkMode ? DefaultColors.messageListPage : Colors.white,
+          appBar: AppBar(
+            elevation: 0,
+            backgroundColor: Theme.of(context).primaryColor,
+            title: const Text(
+              'Contacts',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
               ),
-            );
-          } else if (state is ContactError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: Colors.red,
-                behavior: SnackBarBehavior.floating,
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.search, color: Colors.white),
+                onPressed: () => _showSearchDialog(context),
               ),
-            );
-          }
-        },
-        child: BlocBuilder<ContactBloc, ContactState>(
-          builder: (context, state) {
-            if (state is ContactLoading) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            } else if (state is ContactLoaded) {
-              return state.contacts.isEmpty
-                  ? _buildEmptyContacts()
-                  : _buildContactsList(state);
-            } else if (state is ContactError) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.error_outline,
-                      color: Colors.red,
-                      size: 60,
+            ],
+          ),
+          body: BlocListener<ContactBloc, ContactState>(
+            listener: (context, state) {
+              if (state is ConversationCreated) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ChatPage(
+                      conversationId: state.conversationId,
+                      mate: state.contactName,
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      state.message,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.red,
-                      ),
-                      textAlign: TextAlign.center,
+                  ),
+                );
+              } else if (state is ContactError) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.message),
+                    backgroundColor: Colors.red,
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              }
+            },
+            child: BlocBuilder<ContactBloc, ContactState>(
+              builder: (context, state) {
+                if (state is ContactLoading) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else if (state is ContactLoaded) {
+                  return state.contacts.isEmpty
+                      ? _buildEmptyContacts()
+                      : _buildContactsList(state,theme);
+                } else if (state is ContactError) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.error_outline,
+                          color: Colors.red,
+                          size: 60,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          state.message,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.red,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () {
+                            context
+                                .read<ContactBloc>()
+                                .add(FetchContactEvent());
+                          },
+                          child: const Text('Try Again'),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        context.read<ContactBloc>().add(FetchContactEvent());
-                      },
-                      child: const Text('Try Again'),
-                    ),
-                  ],
-                ),
-              );
-            }
-            return _buildEmptyContacts();
-          },
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddContactDialog(context),
-        backgroundColor: Theme.of(context).primaryColor,
-        child: const Icon(Icons.person_add, color: Colors.white),
-      ),
+                  );
+                }
+                return _buildEmptyContacts();
+              },
+            ),
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () => _showAddContactDialog(context),
+            backgroundColor: Theme.of(context).primaryColor,
+            child: const Icon(Icons.person_add, color: Colors.white),
+          ),
+        );
+      },
     );
   }
 
@@ -166,7 +177,7 @@ class _ContactPageState extends State<ContactPage> {
     );
   }
 
-  Widget _buildContactsList(ContactLoaded state) {
+  Widget _buildContactsList(ContactLoaded state, theme) {
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 8),
       itemCount: state.contacts.length,
@@ -194,18 +205,16 @@ class _ContactPageState extends State<ContactPage> {
             leading: Hero(
               tag: 'contact_${contact.id}',
               child: CircleAvatar(
-                radius: 24,
-                backgroundColor: Colors.grey[200],
-                backgroundImage: NetworkImage(contact.photoProfile),
-                onBackgroundImageError: (_, __) {},
-                child: contact.photoProfile.isEmpty
+                radius: 25,
+                backgroundColor: theme.primaryColor,
+                backgroundImage: contact.photoProfile.length > 1
+                    ? NetworkImage(contact.photoProfile)
+                    : null,
+                child: contact.photoProfile.length == 1
                     ? Text(
-                        contact.username[0],
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey,
-                        ),
+                        contact.photoProfile.toUpperCase(),
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
                       )
                     : null,
               ),
@@ -231,7 +240,9 @@ class _ContactPageState extends State<ContactPage> {
               icon: const Icon(Icons.message, color: Colors.blue),
               onPressed: () {
                 BlocProvider.of<ContactBloc>(context).add(
-                    CheckOrCreateConversationEvent(contact, contact.username));
+                  CheckOrCreateConversationEvent(
+                      contactName: contact.username, contactId: contact),
+                );
               },
             ),
           ),

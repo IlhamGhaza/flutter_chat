@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/bloc/theme_cubit.dart';
 import '../../../../core/theme.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/pages/splash_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -14,7 +16,6 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   bool _isLoading = true;
   String? _error;
-
 
   Future<void> _launchURL(String url) async {
     if (!await launchUrl(Uri.parse(url))) {
@@ -52,8 +53,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         Positioned.fill(
                           child: CustomPaint(
                             painter: BackgroundPatternPainter(
-                              color:
-                                  theme.colorScheme.onPrimary.withValues(alpha: 0.1),
+                              color: theme.colorScheme.onPrimary
+                                  .withValues(alpha: 0.1),
                             ),
                           ),
                         ),
@@ -73,11 +74,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 child: _isLoading
                                     ? const CircleAvatar(
                                         radius: 50,
-                                        backgroundImage:
-                                        NetworkImage(
-                                          'https://avatars.githubusercontent.com/u/57607688?v=4'
-                                        )
-                                      )
+                                        backgroundImage: NetworkImage(
+                                            'https://avatars.githubusercontent.com/u/57607688?v=4'))
                                     : CircleAvatar(
                                         radius: 50,
                                         child: CircularProgressIndicator(),
@@ -191,7 +189,6 @@ class _ProfilePageState extends State<ProfilePage> {
                             },
                           ),
                         ),
-                       
                       ),
                       InkWell(
                         onTap: () {
@@ -222,6 +219,80 @@ class _ProfilePageState extends State<ProfilePage> {
                               const SizedBox(width: 12),
                               Text(
                                 'Buy Me a Coffee',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(
+                                      color: Colors.brown[900],
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      //logout
+                      InkWell(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text('Logout'),
+                                content: const Text(
+                                    'Are you sure you want to logout?'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text('Cancel'),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      context
+                                          .read<AuthBloc>()
+                                          .add(LogoutEvent());
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => SplashScreen(),
+                                        ),
+                                      );
+                                    },
+                                    child: const Text('Logout'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 16,
+                            horizontal: 20,
+                          ),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.red[300]!,
+                                Colors.red[400]!,
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.logout,
+                                color: Colors.brown[900],
+                                size: 28,
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                'Logout',
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleLarge

@@ -14,8 +14,7 @@ class ConversationsRepositoryImpl implements ConversationRepository {
   }
   
   @override
-  Future<String> checkOrCreateConversation( String id) async {
-    // TODO: implement checkOrCreateConversation
+  Future<ConversationEntity> checkOrCreateConversation( String id) async {
     return await remoteDataSource.checkOrCreateConversation(id);
   }
 

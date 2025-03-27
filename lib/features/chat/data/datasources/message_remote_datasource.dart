@@ -10,17 +10,18 @@ import '../../../auth/data/datasources/auth_local_datasource.dart';
 class MessageRemoteDatasource {
   final _authLocalDatasource = AuthLocalDatasource();
   Future<List<MessageEntity>> fetchMessages(String conversationId) async {
-    await _authLocalDatasource.getToken();
+    final token = await _authLocalDatasource.getToken();
     final response = await http.get(
       Uri.parse('${Variables.baseUrl}/messages/$conversationId'),
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ${await _authLocalDatasource.getToken()}',
+        'Authorization': 'Bearer $token',
       },
     );
     log('get all message response: ${response.body}');
     if (response.statusCode == 200) {
-      List data = jsonDecode(response.body);
+      final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      final List<dynamic> data = jsonResponse['data'];
       return data.map((json) => MessageModel.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load messages');

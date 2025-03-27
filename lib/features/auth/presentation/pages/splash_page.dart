@@ -7,6 +7,7 @@ import '../../../../core/bloc/theme_cubit.dart';
 import '../../../../core/theme.dart';
 import '../../../../nav_bar.dart';
 import '../../data/datasources/auth_local_datasource.dart';
+import 'login_page.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -21,11 +22,12 @@ class _SplashScreenState extends State<SplashScreen> {
 
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       final token = await _authLocalDatasource.getToken();
-      if (token != null) {
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => NavBar()));
+      if (token == null) {
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => const LoginPage()));
       } else {
-        Navigator.pushReplacementNamed(context, '/login');
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => const NavBar()));
       }
     });
   }

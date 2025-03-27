@@ -1,3 +1,4 @@
+import '../entities/conversation_entity.dart';
 import '../repositories/conversation_repository.dart';
 
 class CheckOrCreateConversationUseCase {
@@ -6,7 +7,7 @@ class CheckOrCreateConversationUseCase {
   CheckOrCreateConversationUseCase({required this.repository});
 
 
- Future<String> call(String id) async {
+ Future<ConversationEntity> call(String id) async {
     return await repository.checkOrCreateConversation(id);
   }
 }

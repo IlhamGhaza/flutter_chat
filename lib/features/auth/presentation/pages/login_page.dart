@@ -6,6 +6,7 @@ import 'package:flutter_chat/features/auth/presentation/widgets/auth_prom.dart';
 
 import '../../../../core/bloc/theme_cubit.dart';
 import '../../../../core/theme.dart';
+import '../../../../nav_bar.dart';
 import '../bloc/auth_bloc.dart';
 import 'register_page.dart';
 
@@ -28,7 +29,6 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void dispose() {
-    // _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -51,29 +51,25 @@ class _LoginPageState extends State<LoginPage> {
         final isDarkMode = themeMode == ThemeMode.dark;
         final theme = isDarkMode ? AppTheme.darkTheme : AppTheme.lightTheme;
         return Scaffold(
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          backgroundColor: theme.scaffoldBackgroundColor,
           body: Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(20),
               child: Form(
                 key: _formKey,
                 child: Column(
-                  spacing: 10,
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // _buildTextInput(
-                    //   context,
-                    //   'Username',
-                    //   Icons.person,
-                    //   _usernameController,
-                    //   validator: (value) {
-                    //     if (value == null || value.isEmpty) {
-                    //       return 'Please enter your username';
-                    //     }
-                    //     return null;
-                    //   },
-                    // ),
+                    Text(
+                      'Welcome Back',
+                      style: theme.textTheme.headlineMedium?.copyWith(
+                        color: theme.primaryColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 30),
                     AuthInputField(
                       label: 'Email',
                       icon: Icons.email,
@@ -89,6 +85,7 @@ class _LoginPageState extends State<LoginPage> {
                         return null;
                       },
                     ),
+                    const SizedBox(height: 20),
                     AuthInputField(
                       label: 'Password',
                       icon: Icons.lock,
@@ -107,43 +104,56 @@ class _LoginPageState extends State<LoginPage> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 30),
                     BlocConsumer<AuthBloc, AuthState>(
                       listener: (context, state) {
                         if (state is AuthSuccess) {
-                          Navigator.pushNamed(context, '/home');
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const NavBar(),
+                              ));
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(state.message,
-                                  style: TextStyle(color: Colors.white)),
-                              backgroundColor: Colors.green,
+                                  style: TextStyle(
+                                      color: theme.snackBarTheme
+                                          .contentTextStyle?.color)),
+                              backgroundColor:
+                                  theme.snackBarTheme.backgroundColor,
                             ),
                           );
                         } else if (state is AuthFailure) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(state.error,
-                                  style: TextStyle(color: Colors.white)),
-                              backgroundColor: Colors.red,
+                                  style: TextStyle(
+                                      color: theme.snackBarTheme
+                                          .contentTextStyle?.color)),
+                              backgroundColor: theme.colorScheme.error,
                             ),
                           );
                         }
                       },
                       builder: (context, state) {
                         if (state is AuthLoading) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
+                          return Center(
+                            child: CircularProgressIndicator(
+                              color: theme.primaryColor,
+                            ),
                           );
                         }
                         return AuthButton(
-                            onPressed: () {
-                              if (_formKey.currentState!.validate()) {
-                                _onLogin();
-                              }
-                            },
-                            text: 'Login');
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              _onLogin();
+                            }
+                          },
+                          text: 'Login',
+                        );
                       },
                     ),
+                    const SizedBox(height: 20),
                     AuthProm(
                       onPressed: () {
                         Navigator.push(
@@ -153,7 +163,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         );
                       },
-                      text1: "Don`t have an account?",
+                      text1: "Don't have an account?",
                       text2: 'Sign Up',
                     ),
                   ],

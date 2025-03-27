@@ -19,7 +19,7 @@ class DeleteContactEvent extends ContactEvent {
 class CheckOrCreateConversationEvent extends ContactEvent {
   final ContactEntity contactId;
   final String contactName;
-  CheckOrCreateConversationEvent( this.contactId, this.contactName);
+CheckOrCreateConversationEvent( { required this.contactId, required this.contactName});
 }
 
 class ConversationCreated extends ContactState {
