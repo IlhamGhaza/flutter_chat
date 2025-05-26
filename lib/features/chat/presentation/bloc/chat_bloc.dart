@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter_chat/features/chat/domain/usecases/fetch_message_use_case.dart';
-import 'package:flutter_chat/features/conversation/domain/usecases/fetch_conversation_use_case.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../../../core/socket_service.dart';

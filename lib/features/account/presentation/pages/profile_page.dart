@@ -7,14 +7,14 @@ import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/pages/splash_page.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  const ProfilePage({super.key});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  bool _isLoading = true;
+  final bool _isLoading = true;
   String? _error;
 
   Future<void> _launchURL(String url) async {

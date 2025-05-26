@@ -13,7 +13,7 @@ class AuthInputField extends StatelessWidget {
   final String? Function(String?)? validator;
 
   const AuthInputField({
-    Key? key,
+    super.key,
     required this.label,
     required this.icon,
     required this.controller,
@@ -21,7 +21,7 @@ class AuthInputField extends StatelessWidget {
     this.obscureText = false,
     this.toggleObscureText,
     this.validator,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -2,7 +2,6 @@
 import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
-import 'package:flutter_chat/features/chat/presentation/bloc/chat_bloc.dart';
 import 'package:flutter_chat/features/contact/domain/usecases/fetch_contact_usecase.dart';
 
 import '../../../conversation/domain/usecases/check_or_create_conversation_use_case.dart';
@@ -74,13 +73,9 @@ class ContactBloc extends Bloc<ContactEvent, ContactState> {
     try {
       final conversationId = await checkOrCreateConversationUseCase
           .call(event.contactId.id.toString());
-      if (conversationId != null) {
-        emit(ConversationCreated(
-            conversationId.toString(), event.contactId.username));
-      } else {
-        emit(ContactError(message: 'Failed to create conversation'));
-      }
-    } catch (e) {
+      emit(ConversationCreated(
+          conversationId.toString(), event.contactId.username));
+        } catch (e) {
       emit(ContactError(message: e.toString()));
     }
   }

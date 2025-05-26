@@ -238,11 +238,11 @@ class _ChatPageState extends State<ChatPage> {
       child: Row(
         children: [
           GestureDetector(
+            onTap: _pickFile,
             child: Icon(
               Icons.attach_file,
               color: theme.iconTheme.color,
             ),
-                        onTap: _pickFile,
           ),
           SizedBox(width: 10),
           Expanded(
@@ -258,11 +258,11 @@ class _ChatPageState extends State<ChatPage> {
           ),
           SizedBox(width: 10),
           GestureDetector(
+            onTap: _sendMessage,
             child: Icon(
               Icons.send,
               color: theme.iconTheme.color,
             ),
-            onTap: _sendMessage,
           ),
         ],
       ),

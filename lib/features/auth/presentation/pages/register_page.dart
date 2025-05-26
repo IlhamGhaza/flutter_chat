@@ -10,7 +10,7 @@ import '../widgets/auth_input_field.dart';
 import 'login_page.dart';
 
 class RegisterPage extends StatefulWidget {
-  const RegisterPage({Key? key}) : super(key: key);
+  const RegisterPage({super.key});
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();

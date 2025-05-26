@@ -19,7 +19,7 @@ class SocketService {
   Future<void> initSocket() async {
     String token = await _storage.read(key: 'token') ?? '';
     _socket = IO.io(
-      '${Variables.baseUrl}',
+      Variables.baseUrl,
       IO.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()
